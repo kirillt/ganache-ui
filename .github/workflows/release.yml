@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         node: [14.21.1]
-        os: [ubuntu-18.04]
+        os: [ubuntu-20.04]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -23,6 +23,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+      - uses: de-vri-es/setup-git-credentials@v2
+        with:
+          credentials: ${{secrets.PAT}}
       - run: npm ci
         env:
           FORCE_COLOR: 1
