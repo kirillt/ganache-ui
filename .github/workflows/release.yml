@@ -1,7 +1,7 @@
 name: Release
 
 # this should only run on release, but I'm triggering on pull_request so that I can test it
-on: [pull_request]
+on: [push]
 
 jobs:
   build:
@@ -36,17 +36,8 @@ jobs:
           FORCE_COLOR: 1
       - run: npm run build-linux
         if: startsWith(matrix.os, 'ubuntu-')
-      #- run: npm run build-windows
-      #  if: startsWith(matrix.os, 'windows-')
-      - run: npm run build-mac
-        if: startsWith(matrix.os, 'macos-')
       - uses: actions/upload-artifact@v3
         with:
-          name: Release
+          name: Ganache-UI
           path: |
             dist/*.AppImage
-            dist/*.dmg
-            dist/*.blockmap
-            dist/*.zip
-            dist/*.appx
-            dist/*.yml
