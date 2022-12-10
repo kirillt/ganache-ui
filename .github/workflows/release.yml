@@ -1,0 +1,43 @@
+name: Release
+
+# this should only run on release, but I'm triggering on pull_request so that I can test it
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [14.21.1]
+        os: [windows-2019, ubuntu-18.04, macos-11]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Add msbuild to PATH
+        # we need msbuild tools for the `bcrypto` module
+        if: startsWith(matrix.os, 'windows-')
+        uses: microsoft/setup-msbuild@v1.1
+      - uses: de-vri-es/setup-git-credentials@v2
+        with:
+          credentials: ${{secrets.PAT}}
+      - run: npm ci
+        env:
+          FORCE_COLOR: 1
+      - run: npm run build-linux
+        if: startsWith(matrix.os, 'ubuntu-')
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Ganache-UI
+          path: |
+            dist/*.AppImage
